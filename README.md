@@ -16,7 +16,7 @@ This is a quickstart for the CSNF project.
   2. Open a terminal, from within the local repository, and run the following command:
 
   ```
-  docker compsoe up
+  docker compose up
   ```
 
   3. View the results in Sentinel and Splunk.
@@ -35,7 +35,7 @@ This is a quickstart for the CSNF project.
   2. Open a terminal, from within the local repository, and run the following command:
 
   ```
-  docker-compose up
+  docker compose up
   ```
 
   3. Open a second terminal and run the following command:
