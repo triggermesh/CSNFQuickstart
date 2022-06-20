@@ -17,10 +17,10 @@ limitations under the License.
 package main
 
 import (
-	splitter "github.com/triggermesh/CSNFQuickstart/splitter/pkg/adapter"
+	azuredefendertransformation "github.com/triggermesh/CSNFQuickstart/guts/azuredefendertransformation/pkg/adapter"
 	pkgadapter "knative.dev/eventing/pkg/adapter/v2"
 )
 
 func main() {
-	pkgadapter.Main("splitter-adapter", splitter.EnvAccessorCtor, splitter.NewAdapter)
+	pkgadapter.Main("azuredefendertransformation-adapter", azuredefendertransformation.EnvAccessorCtor, azuredefendertransformation.NewAdapter)
 }

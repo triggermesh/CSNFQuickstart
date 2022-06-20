@@ -17,10 +17,10 @@ limitations under the License.
 package main
 
 import (
-	oraclecloudguardtransformation "github.com/triggermesh/CSNFQuickstart/oraclecloudguardtransformation/pkg/adapter"
+	aquasectransformation "github.com/triggermesh/CSNFQuickstart/guts/aquasectransformation/pkg/adapter"
 	pkgadapter "knative.dev/eventing/pkg/adapter/v2"
 )
 
 func main() {
-	pkgadapter.Main("oraclecloudguardtransformation-adapter", oraclecloudguardtransformation.EnvAccessorCtor, oraclecloudguardtransformation.NewAdapter)
+	pkgadapter.Main("aquasectransformation-adapter", aquasectransformation.EnvAccessorCtor, aquasectransformation.NewAdapter)
 }

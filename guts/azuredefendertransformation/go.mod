@@ -1,4 +1,4 @@
-module github.com/triggermesh/CSNFQuickstart/oraclecloudguardtransformation
+module github.com/triggermesh/CSNFQuickstart/guts/azuredefendertransformation
 
 go 1.18
 
