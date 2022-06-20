@@ -40,22 +40,37 @@ services:
   #     - "8080"
   #   links:
   #     - azure-defender-transformation
-  oracle-event-gen:
-    image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
-    command: Oracle http://oracle-cloudguard-transformation:8080
+  # oracle-event-gen:
+  #   image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
+  #   command: Oracle http://oracle-cloudguard-transformation:8080
+  #   links:
+  #     - oracle-cloudguard-transformation
+  # aquasec-event-gen:
+  #   image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
+  #   command: Aquasec http://aquasec-transformation:8080
+  #   links:
+  #     - aquasec-transformation
+  # azure-event-gen:
+  #   image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
+  #   command: Azure http://azure-defender-transformation:8080
+  #   links:
+  #     - azure-defender-transformation
+  http-source:
+    image: gcr.io/triggermesh/httpsource-adapter@sha256:926e9aeff89c7e9a753ccb754beddbf5f250474634f5853143b3afd5da70bebb
+    environment:
+      K_METRICS_CONFIG: '{}'
+      K_LOGGING_CONFIG: '{}'
+      NAMESPACE: default
+      K_SINK: http://${WEBHOOK_EVENT_TYPE}:8080
+      HTTP_EVENT_TYPE: "http"
+      HTTP_EVENT_SOURCE: "http-source"
+    ports:
+      - "8080:8080"
+    expose:
+      - "80"
+      - "8080"
     links:
-      - oracle-cloudguard-transformation
-  aquasec-event-gen:
-    image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
-    command: Aquasec http://aquasec-transformation:8080
-    links:
-      - aquasec-transformation
-  azure-event-gen:
-    image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
-    command: Azure http://azure-defender-transformation:8080
-    links:
-      - azure-defender-transformation
-
+      - ${WEBHOOK_EVENT_TYPE}
 
 # Transformations
 
