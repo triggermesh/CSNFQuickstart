@@ -21,40 +21,25 @@
 
 services:
 # Source(s) of events
-
-  # event-gen is a service that generates events. At the moment it only emits a single event, but we can immagine this in future revisions
-  # as being able to generate multiple events/schemas.
-  # The event-gen can be replaced by real sources, like Kafka, Pub/Sub, Azure, etc.
-  # # # Azure Queue Storage Source Adapter
-  # azure-queue-storage-source:
-  #   image: gcr.io/triggermesh/azurequeuestoragesource-adapter:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     AZURE_ACCOUNT_NAME:
-  #     AZURE_QUEUE_NAME:
-  #     AZURE_ACCOUNT_KEY:
-  #     K_SINK: http://azure-defender-transformation:8080
-  #   expose:
-  #     - "8080"
-  #   links:
-  #     - azure-defender-transformation
-  # oracle-event-gen:
-  #   image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
-  #   command: Oracle http://oracle-cloudguard-transformation:8080
-  #   links:
-  #     - oracle-cloudguard-transformation
-  # aquasec-event-gen:
-  #   image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
-  #   command: Aquasec http://aquasec-transformation:8080
-  #   links:
-  #     - aquasec-transformation
-  # azure-event-gen:
-  #   image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
-  #   command: Azure http://azure-defender-transformation:8080
-  #   links:
-  #     - azure-defender-transformation
+  # oracle-event-gen generates synthetic CloudGuard events.
+  oracle-event-gen:
+    image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
+    command: Oracle http://oracle-cloudguard-transformation:8080
+    links:
+      - oracle-cloudguard-transformation
+  # aquasec-event-gen generates synthetic Aquasec events.
+  aquasec-event-gen:
+    image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
+    command: Aquasec http://aquasec-transformation:8080
+    links:
+      - aquasec-transformation
+  # azure-event-gen generates synthetic Azure Sentinel events.
+  azure-event-gen:
+    image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
+    command: Azure http://azure-defender-transformation:8080
+    links:
+      - azure-defender-transformation
+  # http-source exposes a HTTP endpoint that can be used to generate events.
   http-source:
     image: gcr.io/triggermesh/httpsource-adapter@sha256:926e9aeff89c7e9a753ccb754beddbf5f250474634f5853143b3afd5da70bebb
     environment:
@@ -164,7 +149,20 @@ services:
 
 
 
-
+  # azure-queue-storage-source:
+  #   image: gcr.io/triggermesh/azurequeuestoragesource-adapter:latest
+  #   environment:
+  #     NAMESPACE: default     # required due to knative
+  #     K_METRICS_CONFIG: '{}' # required due to knative
+  #     K_LOGGING_CONFIG: '{}' # required due to knative
+  #     AZURE_ACCOUNT_NAME:
+  #     AZURE_QUEUE_NAME:
+  #     AZURE_ACCOUNT_KEY:
+  #     K_SINK: http://azure-defender-transformation:8080
+  #   expose:
+  #     - "8080"
+  #   links:
+  #     - azure-defender-transformation
 
 
   # # A translation service to take a payload from SQS and convert it to a Slack message
