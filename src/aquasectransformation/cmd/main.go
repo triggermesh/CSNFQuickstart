@@ -17,10 +17,10 @@ limitations under the License.
 package main
 
 import (
-	splitter "github.com/triggermesh/CSNFQuickstart/guts/splitter/pkg/adapter"
+	aquasectransformation "github.com/triggermesh/CSNFQuickstart/src/aquasectransformation/pkg/adapter"
 	pkgadapter "knative.dev/eventing/pkg/adapter/v2"
 )
 
 func main() {
-	pkgadapter.Main("splitter-adapter", splitter.EnvAccessorCtor, splitter.NewAdapter)
+	pkgadapter.Main("aquasectransformation-adapter", aquasectransformation.EnvAccessorCtor, aquasectransformation.NewAdapter)
 }

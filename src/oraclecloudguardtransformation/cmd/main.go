@@ -17,7 +17,7 @@ limitations under the License.
 package main
 
 import (
-	oraclecloudguardtransformation "github.com/triggermesh/CSNFQuickstart/guts/oraclecloudguardtransformation/pkg/adapter"
+	oraclecloudguardtransformation "github.com/triggermesh/CSNFQuickstart/src/oraclecloudguardtransformation/pkg/adapter"
 	pkgadapter "knative.dev/eventing/pkg/adapter/v2"
 )
 

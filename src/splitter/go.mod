@@ -1,6 +1,6 @@
-module github.com/triggermesh/CSNFQuickstart/guts/azuredefendertransformation
+module github.com/triggermesh/CSNFQuickstart/src/splitter
 
-go 1.18
+go 1.17
 
 // Knative and CloudEvents are the common denominator to all TriggerMesh components.
 require (

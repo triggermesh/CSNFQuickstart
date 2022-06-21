@@ -48,4 +48,4 @@ This is a quickstart for the CSNF project.
 
 ## Contributing
 
-  All of the underlying components are open source and can be found in the `guts` directory (except for the Sentinal and Splunk components. They can be found at github.com/triggermesh/triggermesh).
+  All of the underlying components are open source and can be found in the `src` directory (except for the Sentinal and Splunk components. They can be found at github.com/triggermesh/triggermesh).

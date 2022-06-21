@@ -1,4 +1,4 @@
-module github.com/triggermesh/CSNFQuickstart/guts/aquasectransformation
+module github.com/triggermesh/CSNFQuickstart/src/azuredefendertransformation
 
 go 1.18
 

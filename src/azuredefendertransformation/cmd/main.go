@@ -17,10 +17,10 @@ limitations under the License.
 package main
 
 import (
-	aquasectransformation "github.com/triggermesh/CSNFQuickstart/guts/aquasectransformation/pkg/adapter"
+	azuredefendertransformation "github.com/triggermesh/CSNFQuickstart/src/azuredefendertransformation/pkg/adapter"
 	pkgadapter "knative.dev/eventing/pkg/adapter/v2"
 )
 
 func main() {
-	pkgadapter.Main("aquasectransformation-adapter", aquasectransformation.EnvAccessorCtor, aquasectransformation.NewAdapter)
+	pkgadapter.Main("azuredefendertransformation-adapter", azuredefendertransformation.EnvAccessorCtor, azuredefendertransformation.NewAdapter)
 }
