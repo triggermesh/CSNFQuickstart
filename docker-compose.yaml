@@ -2,22 +2,21 @@
 # This bridge can be visualized as below. Note that this illustration does not include
 # the triggers or broker, only a high level of what is happening.
 
-# ┌───────────┐   ┌───────────┐    ┌───────────┐    ┌───────────┐
-# │ Defender  │   │           │    │           │    │           │
-# │ Events    ├──►│Transform  ├───►│Sentinel   ├───►│Splunk     │
-# │           │   │           │    │           │    │           │
-# └───────────┘   └───────────┘    └───────────┘    └───────────┘
-# ┌───────────┐   ┌───────────┐    ┌───────────┐    ┌───────────┐
-# │ CloudGuard│   │           │    │           │    │           │
-# │ Events    ├──►│Transform  ├───►│Sentinel   ├───►│Splunk     │
-# │           │   │           │    │           │    │           │
-# └───────────┘   └───────────┘    └───────────┘    └───────────┘
-# ┌───────────┐   ┌───────────┐    ┌───────────┐    ┌───────────┐
-# │ Aquasec   │   │           │    │           │    │           │
-# │ Events    ├──►│Transform  ├───►│Sentinel   ├───►│Splunk     │
-# │           │   │           │    │           │    │           │
-# └───────────┘   └───────────┘    └───────────┘    └───────────┘
-
+# ┌───────────┐   ┌───────────┐    ┌───────────┐
+# │ Defender  │   │           │    │           │
+# │ Events    ├──►│Transform  ├───►│Splunk     │
+# │           │   │           │    │           │
+# └───────────┘   └───────────┘    └───────────┘
+# ┌───────────┐   ┌───────────┐    ┌───────────┐
+# │ CloudGuard│   │           │    │           │
+# │ Events    ├──►│Transform  ├───►│Splunk     │
+# │           │   │           │    │           │
+# └───────────┘   └───────────┘    └───────────┘
+# ┌───────────┐   ┌───────────┐    ┌───────────┐
+# │ Aquasec   │   │           │    │           │
+# │ Events    ├──►│Transform  ├───►│Splunk     │
+# │           │   │           │    │           │
+# └───────────┘   └───────────┘    └───────────┘
 
 services:
 # Source(s) of events
@@ -27,18 +26,21 @@ services:
     command: Oracle http://oracle-cloudguard-transformation:8080
     links:
       - oracle-cloudguard-transformation
+
   # aquasec-event-gen generates synthetic Aquasec events.
   aquasec-event-gen:
     image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
     command: Aquasec http://aquasec-transformation:8080
     links:
       - aquasec-transformation
+
   # azure-event-gen generates synthetic Azure Sentinel events.
   azure-event-gen:
     image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
     command: Azure http://azure-defender-transformation:8080
     links:
       - azure-defender-transformation
+
   # http-source exposes a HTTP endpoint that can be used to generate events.
   http-source:
     image: gcr.io/triggermesh/httpsource-adapter@sha256:926e9aeff89c7e9a753ccb754beddbf5f250474634f5853143b3afd5da70bebb
@@ -57,67 +59,39 @@ services:
     links:
       - ${WEBHOOK_EVENT_TYPE}
 
-# Transformations
-
+# # Transformations
   # azure-defender-transformation is a service that transforms Azure Defender events into the CSNF CDM format.
   azure-defender-transformation:
     image: gcr.io/triggermesh/azuredefendertransformation
     environment:
-      K_SINK: http://event-splitter:8080
+      K_SINK: http://splunk-target:8080
     expose:
       - "8080"
     links:
-      - event-splitter
+      - splunk-target
 
   # oracle-cloudguard-transformation
   oracle-cloudguard-transformation:
     image: gcr.io/triggermesh/ocgtransformation
     environment:
-      K_SINK: http://event-splitter:8080
+      K_SINK: http://splunk-target:8080
     expose:
       - "8080"
     links:
-      - event-splitter
+      - splunk-target
 
   # aquasec-transformation
   aquasec-transformation:
     image: gcr.io/triggermesh/aquasectransformation
     environment:
-      K_SINK: http://event-splitter:8080
+      K_SINK: http://splunk-target:8080
     expose:
       - "8080"
     links:
-      - event-splitter
-
-# Routing
-
-  # event-splitter allows us to send the event to multiple Targets.
-  event-splitter:
-    image: gcr.io/triggermesh/splitter@sha256:d98ff0895acb16f6e0dd9d123be9b6f547cc177f60848db583f529beb2819cf4
-    environment:
-      K_SINK: http://splunk-target:8080
-      K_SINK2: http://azure-sentinel-target:8080
-    links:
-      - azure-sentinel-target
       - splunk-target
 
 # Targets/Sinks
-
-  # azure-sentinel-target is an Azure Sentinel Target
-  azure-sentinel-target:
-    image: gcr.io/triggermesh/azuresentineltarget:latest
-    environment:
-      NAMESPACE: default     # required due to knative
-      K_METRICS_CONFIG: '{}' # required due to knative
-      K_LOGGING_CONFIG: '{}' # required due to knative
-      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
-      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
-      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
-      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
-      AZURE_RESOURCE_GROUP: sent
-      AZURE_WORKSPACE: sent
-
-  # splunk-target is a Splunk Target
+  # splunk-target exposes an interface for us to send events to Splunk.
   splunk-target:
     image: gcr.io/triggermesh/splunktarget-adapter:latest
     environment:
@@ -131,172 +105,19 @@ services:
     expose:
       - "8080"
       - "8088"
+    links:
+      - splunk
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  # azure-queue-storage-source:
-  #   image: gcr.io/triggermesh/azurequeuestoragesource-adapter:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     AZURE_ACCOUNT_NAME:
-  #     AZURE_QUEUE_NAME:
-  #     AZURE_ACCOUNT_KEY:
-  #     K_SINK: http://azure-defender-transformation:8080
-  #   expose:
-  #     - "8080"
-  #   links:
-  #     - azure-defender-transformation
-
-
-  # # A translation service to take a payload from SQS and convert it to a Slack message
-  # azure-defender-transformation:
-  #   image: gcr.io/triggermesh/infratarget-adapter-62176aeeca5dfa3fe717fbb7083a6f7f@sha256:879d79026f0c945b4dc098c85ddb8fd481166679ed9a0bd95c7a5737d39baf33
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     INFRA_SCRIPT_CODE: |
-  #       function handle(input) {
-  #         input.data = {
-  #           "channel": "test",
-  #           "provider": "Azure Defender",
-  #           "providerType": "Azure",
-  #           "providerId": "none",
-  #           "source":{
-  #             "sourceName": "Azure Defender",
-  #             "sourceId": "none"
-  #           },
-  #           "provider":{
-  #             "accountId": "Text.id"
-  #           },
-  #           "event":{
-  #             "guid": "Text.id",
-  #             "name": "Text.properties.alertName",
-  #             "shortDescription": "Text.properties.description",
-  #             "startTime": "Text.properties.reportedTimeUtc",
-  #             "severity": "Text.properties.extendedProperties.killChainIntent",
-  #             "status": "Text.properties.state"
-  #           },
-  #           "resource":{
-  #             "identifier": "Text.properties.instanceId",
-  #             "type": "Text.type",
-  #             "name": "Text.properties.alertName",
-  #             "region": "us-east-1",
-  #             "zone": "us"
-  #           }
-  #         };
-  #         input.type = "new.type";
-  #         return input;
-  #       }
-  #     K_SINK: http://event-splitter:8080
-  #   expose:
-  #     - "8080"
-  #   links:
-  #     - event-splitter
-
-
-#  # Azure Defender Transformation
-#   azure-defender-transformation:
-#     image: gcr.io/triggermesh/transformation-adapter@sha256:38c8392ba3ed7bf3757eec5d7107801df0ecd24594543847025044e249cad9da
-#     environment:
-#       NAMESPACE: default     # required due to knative
-#       K_METRICS_CONFIG: '{}' # required due to knative
-#       K_LOGGING_CONFIG: '{}' # required due to knative
-#       TRANSFORMATION_CONTEXT: '[{"operation":"add","paths":[{"key":"type","value":"io.triggermesh.csnf.azure.defender.transformation"}]}]'
-#       TRANSFORMATION_DATA: |-
-#         [{"operation":"store","paths":[{"key":"$provider","value":"Azure Defender"},{"key":"$providerType","value":"Azure"},{"key":"$sourceName","value":"Azure Defender"},{"key":"$sourceId","value":"none"},{"key":"$providerAccountId","value":"id"},{"key":"$eventGUID","value":"id"},{"key":"$eventName","value":"properties.alertName"},{"key":"$eventShortDescription","value":"properties.description"},{"key":"$eventStartTime","value":"properties.reportedTimeUtc"},{"key":"$eventSeverity","value":"properties.extendedProperties.killChainIntent"},{"key":"$eventStatus","value":"properties.state"},{"key":"$resourceIdentifier","value":"properties.instanceId"},{"key":"$resourceType","value":"type"},{"key":"$resourceName","value":"properties.alertName"},{"key":"$resourceRegion","value":"us-east-1"},{"key":"$resourceZone","value":"us"}]},{"operation":"delete","paths":[{}]},{"operation":"add","paths":[{"key":"provider","value":"$provider"},{"key":"providerType","value":"$providerType"},{"key":"providerId","value":"$providerId"},{"key":"source.sourceName","value":"$sourceName"},{"key":"source.sourceId","value":"$sourceId"},{"key":"provider.accountId","value":"$providerAccountId"},{"key":"event.guid","value":"$eventGUID"},{"key":"event.name","value":"$eventName"},{"key":"event.shortDescription","value":"$eventShortDescription"},{"key":"event.startTime","value":"$eventStartTime"},{"key":"event.severity","value":"$eventSeverity"},{"key":"event.status","value":"$eventStatus"},{"key":"resource.identifier","value":"$resourceIdentifier"},{"key":"resource.type","value":"$resourceType"},{"key":"resource.name","value":"$resourceName"},{"key":"resource.region","value":"$resourceRegion"},{"key":"resource.zone","value":"$resourceZone"}]}]
-#       # K_SINK: http://event-splitter:8080
-#     expose:
-#       - "8080"
-#     links:
-#       - event-splitter
-
-
-
-
-
-  # # Kafka Source Adapter
-  # kafka:
-  #   image: gcr.io/triggermesh/kafkasource:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     CONFLUENT_BOOTSTRAP_SERVERS: placeholder
-  #     CONFLUENT_SASL_USERNAME: placeholder
-  #     CONFLUENT_SASL_PASSWORD: placeholder
-  #     CONFLUENT_TOPIC: placeholder
-  #     K_SINK: http://mux:8080 # pass in the sink name with the port
-
-  # # Google PubSub Source Adapter
-  # google-pubsub:
-  #   image: gcr.io/triggermesh/googlecloudpubsubsource-adapter:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     GCLOUD_SERVICEACCOUNT_KEY:
-  #     GCLOUD_PUBSUB_SUBSCRIPTION:
-
-  #     K_SINK: http://mux:8080 # pass in the sink name with the port
-
-
-  # # Aquasec Transformation
-  # aquasec-transformation:
-  #   image: gcr.io/triggermesh/transformation-adapter:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     TRANSFORMATION_CONTEXT: '[{"operation":"add","paths":[{"key":"type","value":"io.triggermesh.csnf.aquasec.transformation"}]}]'
-  #     TRANSFORMATION_DATA: '[{"operation":"parse","paths":[{"key":"data","value":"JSON"}]},{"operation":"store","paths":[{"key":"$id","value":"host"},{"key":"$hostid","value":"data.hostid"},{"key":"$reason","value":"data.reason"},{"key":"$time","value":"data.time"},{"key":"$containerid","value":"containerid"},{"key":"$category","value":"data.category"},{"key":"$container","value":"container"},{"key":"$region","value":"data.vm_location"},{"key":"$image","value":"image"},{"key":"$name","value":"type"}]},{"operation":"delete","paths":[{}]},{"operation":"add","paths":[{"key":"provider","value":"Aquasec"},{"key":"providerId","value":"$hostid"},{"key":"provider.providerType","value":"aquasec"},{"key":"provider.providerId","value":"$id"},{"key":"provider.accountId","value":"$id"},{"key":"provider.name","value":"Google
-  #           PubSub"},{"key":"source.sourceName","value":"Aquasec"},{"key":"source.sourceId","value":"$containerid"},{"key":"event.guid","value":"$hostid"},{"key":"event.name","value":"$name"},{"key":"event.shortDescription","value":"an
-  #           aquasec short description goes here"},{"key":"event.startTime","value":"$time"},{"key":"event.severity","value":"HIGH"},{"key":"event.status","value":"OPEN"},{"key":"resource.identifier","value":"$id"},{"key":"resource.type","value":"Container"},{"key":"resource.name","value":"$hostid"},{"key":"resource.region","value":"us-1-c"},{"key":"resource.zone","value":"us"},{"key":"image","value":"$image"}]}]'
-  #   expose:
-  #     - "8080"
-
-
-  # # Cloudguard Transformation
-  # cloudguard-transformation:
-  #   image: gcr.io/triggermesh/transformation-adapter:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-  #     TRANSFORMATION_CONTEXT:  '[{"operation":"add","paths":[{"key":"type","value":"io.triggermesh.csnf.cloudguard.transformation"}]}]'
-  #     TRANSFORMATION_DATA: '[{"operation":"store","paths":[{"key":"$accountID","value":"data.additionalDetails.tenantId"},{"key":"$eventName","value":"data.additionalDetails.problemName"},{"key":"$eventShortDescription","value":"data.additionalDetails.problemDescription"},{"key":"$eventStartTime","value":"data.additionalDetails.firstDetected"},{"key":"$eventSeverity","value":"data.additionalDetails.riskLevel"},{"key":"$eventStatus","value":"data.additionalDetails.status"},{"key":"$resourceIdentifier","value":"data.additionalDetails.resourceId"},{"key":"$resourceType","value":"data.additionalDetails.resourceType"},{"key":"$resourceName","value":"data.additionalDetails.resourceName"},{"key":"$resourceRegion","value":"data.additionalDetails.region"},{"key":"$resourceZone","value":"data.compartmentName"},{"key":"$providerAccountId","value":"data.additionalDetails.tenantId"},{"key":"$resourceName","value":"data.additionalDetails.resourceName"},{"key":"$resourceName","value":"data.additionalDetails.resourceName"}]},{"operation":"delete","paths":[{}]},{"operation":"add","paths":[{"key":"provider","value":"Oracle
-  #           Cloud Infrastructure"},{"key":"providerType","value":"CSP"},{"key":"providerId","value":"$resourceName"},{"key":"source.sourceName","value":"Cloud
-  #           Guard"},{"key":"source.sourceId","value":"none"},{"key":"provider.accountId","value":"$accountID"},{"key":"event.name","value":"$eventName"},{"key":"event.shortDescription","value":"$eventShortDescription"},{"key":"event.startTime","value":"$eventStartTime"},{"key":"event.severity","value":"$eventSeverity"},{"key":"event.status","value":"$eventStatus"},{"key":"resource.identifier","value":"$resourceIdentifier"},{"key":"resource.type","value":"$resourceType"},{"key":"resource.name","value":"$resourceName"},{"key":"resource.region","value":"$resourceRegion"},{"key":"resource.zone","value":"$resourceZone"}]}]'
-
-  #     K_SINK: http://mux:8080
-  #   expose:
-  #     - "8080"
-
-  # Dockerhub event decorator
-  # csnf-dockerhub-decorator:
-  #   image: gcr.io/triggermesh/csnfdockerhubdecorator:latest
-  #   environment:
-  #     NAMESPACE: default     # required due to knative
-  #     K_METRICS_CONFIG: '{}' # required due to knative
-  #     K_LOGGING_CONFIG: '{}' # required due to knative
-
-  #     K_SINK: http://mux:8080
-  #   expose:
-  #     - "8080"
+# Services
+  # splunk is an instance of Splunk.
+#   curl -k https://localhost:8088/services/collector/event -H "Authorization: Splunk 123456789" -d '{"event": "hello world"}'
+  splunk:
+    image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
+    container_name: splunk-service
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_HEC_TOKEN
+      - SPLUNK_PASSWORD
+    ports:
+      - 8000:8000
+      - 8088:8088
