@@ -15,7 +15,7 @@ This is a quickstart for the CSNF project.
   docker compose up
   ```
 
-  3. View the results in Sentinel and Splunk.
+  3. View the results in in Splunk at `http://localhost:8000/en-US` by logging in with `admin` / `admin1234`
 
 
 ## Bringing Your Own Data
