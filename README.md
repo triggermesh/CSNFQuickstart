@@ -44,7 +44,7 @@ The goal of this project is to quickly bootstrap a POC/DEV enviorment for teams 
   curl -X POST -H "Content-Type: application/json" -d @./samples/aquasec_new.json http://localhost:8080
   ```
 
-  4. View the results in Sentinel and Splunk.
+  4. View the results in Splunk.
 
 ## Contributing
 
