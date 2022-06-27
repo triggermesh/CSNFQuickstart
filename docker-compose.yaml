@@ -63,60 +63,33 @@ services:
   azure-defender-transformation:
     image: gcr.io/triggermesh/azuredefendertransformation
     environment:
-      K_SINK: http://event-splitter:8080
+      K_SINK: http://splunk-target:8080
     expose:
       - "8080"
     links:
-      - event-splitter
+      - splunk-target
 
   # oracle-cloudguard-transformation
   oracle-cloudguard-transformation:
     image: gcr.io/triggermesh/ocgtransformation
     environment:
-      K_SINK: http://event-splitter:8080
+      K_SINK: http://splunk-target:8080
     expose:
       - "8080"
     links:
-      - event-splitter
+      - splunk-target
 
   # aquasec-transformation
   aquasec-transformation:
     image: gcr.io/triggermesh/aquasectransformation
     environment:
-      K_SINK: http://event-splitter:8080
+      K_SINK: http://splunk-target:8080
     expose:
       - "8080"
     links:
-      - event-splitter
-
-# Routing
-
-  # event-splitter allows us to send the event to multiple Targets.
-  event-splitter:
-    image: gcr.io/triggermesh/splitter@sha256:d98ff0895acb16f6e0dd9d123be9b6f547cc177f60848db583f529beb2819cf4
-    environment:
-      K_SINK: http://splunk-target:8080
-      K_SINK2: http://azure-sentinel-target:8080
-    links:
-      - azure-sentinel-target
       - splunk-target
 
 # Targets/Sinks
-
-  # azure-sentinel-target is an Azure Sentinel Target
-  azure-sentinel-target:
-    image: gcr.io/triggermesh/azuresentineltarget:latest
-    environment:
-      NAMESPACE: default     # required due to knative
-      K_METRICS_CONFIG: '{}' # required due to knative
-      K_LOGGING_CONFIG: '{}' # required due to knative
-      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
-      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
-      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
-      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
-      AZURE_RESOURCE_GROUP: sent
-      AZURE_WORKSPACE: sent
-
   # splunk-target is a Splunk Target
   splunk-target:
     image: gcr.io/triggermesh/splunktarget-adapter:latest
