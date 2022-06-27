@@ -48,4 +48,4 @@ The goal of this project is to quickly bootstrap a POC/DEV enviorment for teams 
 
 ## Contributing
 
-  All of the underlying components are open source and can be found in the `src` directory (except for the Sentinal and Splunk components. They can be found at github.com/triggermesh/triggermesh).
+  All of the underlying components are open source and can be found in the `src` directory (except for the Splunk Target component. This can be found at github.com/triggermesh/triggermesh).
