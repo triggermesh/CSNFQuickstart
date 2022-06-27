@@ -23,24 +23,28 @@ services:
 # Source(s) of events
   # oracle-event-gen generates synthetic CloudGuard events.
   oracle-event-gen:
+    platform: linux/amd64
     image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
     command: Oracle http://oracle-cloudguard-transformation:8080
     links:
       - oracle-cloudguard-transformation
   # aquasec-event-gen generates synthetic Aquasec events.
   aquasec-event-gen:
+    platform: linux/amd64
     image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
     command: Aquasec http://aquasec-transformation:8080
     links:
       - aquasec-transformation
   # azure-event-gen generates synthetic Azure Sentinel events.
   azure-event-gen:
+    platform: linux/amd64
     image: gcr.io/triggermesh/csnfeventgen@sha256:1ebee0299af4e660d898781678d6f20dce489e832548a217d7c6d7599d3fee63
     command: Azure http://azure-defender-transformation:8080
     links:
       - azure-defender-transformation
   # http-source exposes a HTTP endpoint that can be used to generate events.
   http-source:
+    platform: linux/amd64
     image: gcr.io/triggermesh/httpsource-adapter@sha256:926e9aeff89c7e9a753ccb754beddbf5f250474634f5853143b3afd5da70bebb
     environment:
       K_METRICS_CONFIG: '{}'
@@ -61,6 +65,7 @@ services:
 
   # azure-defender-transformation is a service that transforms Azure Defender events into the CSNF CDM format.
   azure-defender-transformation:
+    platform: linux/amd64
     image: gcr.io/triggermesh/azuredefendertransformation
     environment:
       K_SINK: http://splunk-target:8080
@@ -71,6 +76,7 @@ services:
 
   # oracle-cloudguard-transformation
   oracle-cloudguard-transformation:
+    platform: linux/amd64
     image: gcr.io/triggermesh/ocgtransformation
     environment:
       K_SINK: http://splunk-target:8080
@@ -81,6 +87,7 @@ services:
 
   # aquasec-transformation
   aquasec-transformation:
+    platform: linux/amd64
     image: gcr.io/triggermesh/aquasectransformation
     environment:
       K_SINK: http://splunk-target:8080
@@ -92,6 +99,7 @@ services:
 # Targets/Sinks
   # splunk-target is a Splunk Target
   splunk-target:
+    platform: linux/amd64
     image: gcr.io/triggermesh/splunktarget-adapter:latest
     environment:
       NAMESPACE: default     # required due to knative
@@ -109,8 +117,9 @@ services:
 
 # Services
   # splunk is an instance of Splunk.
-#   curl -k https://localhost:8088/services/collector/event -H "Authorization: Splunk 123456789" -d '{"event": "hello world"}'
+  # curl -k https://localhost:8088/services/collector/event -H "Authorization: Splunk 123456789" -d '{"event": "hello world"}'
   splunk:
+    platform: linux/amd64
     image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
     container_name: splunk-service
     environment:
