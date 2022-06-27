@@ -1,5 +1,9 @@
 # CSNF Quickstart
-This is a quickstart for the CSNF project.
+
+This is the V1 quickstart for the [CSNF](https://github.com/onug/CSNF) project. In this version synthetic sources are used to emit 3 mock secuirty event's ( Oracle Cloudguard, Aquasec, and Microsoft Defender). These events are then transformed into the [CSNF](https://github.com/onug/CSNF) standarized format, and then sent to a self-contained Splunk enviorment.
+
+The goal of this project is to quickly bootstrap a POC/DEV enviorment for teams and individuals intrested in the CSNF security event standardization.
+
 
 ## Prerequisites
 
@@ -40,7 +44,6 @@ This is a quickstart for the CSNF project.
   ```
 
   4. View the results in Sentinel and Splunk.
-
 
 ## Contributing
 
