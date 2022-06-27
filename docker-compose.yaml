@@ -44,7 +44,6 @@ services:
       - azure-defender-transformation
 
 # Transformations
-
   # azure-defender-transformation is a service that transforms Azure Defender events into the CSNF CDM format.
   azure-defender-transformation:
     platform: linux/amd64
@@ -55,7 +54,6 @@ services:
       - "8080"
     links:
       - splunk-target
-
   # oracle-cloudguard-transformation
   oracle-cloudguard-transformation:
     platform: linux/amd64
@@ -66,7 +64,6 @@ services:
       - "8080"
     links:
       - splunk-target
-
   # aquasec-transformation
   aquasec-transformation:
     platform: linux/amd64
