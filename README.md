@@ -8,6 +8,7 @@ The goal of this project is to quickly bootstrap a POC/DEV enviorment for teams 
 ## Prerequisites
 
   1. [Docker Desktop](https://www.docker.com/products/docker-desktop)
+  2. X86 chipset (ARM is un-supported at the moment due to an issue with Splunk)
 
 ## Getting Started
 
