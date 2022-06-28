@@ -42,6 +42,24 @@ services:
     command: Azure http://azure-defender-transformation:8080
     links:
       - azure-defender-transformation
+  # http-source exposes a HTTP endpoint that can be used to generate events.
+  http-source:
+    platform: linux/amd64
+    image: gcr.io/triggermesh/httpsource-adapter@sha256:926e9aeff89c7e9a753ccb754beddbf5f250474634f5853143b3afd5da70bebb
+    environment:
+      K_METRICS_CONFIG: '{}'
+      K_LOGGING_CONFIG: '{}'
+      NAMESPACE: default
+      K_SINK: http://${WEBHOOK_EVENT_TYPE}:8080
+      HTTP_EVENT_TYPE: "http"
+      HTTP_EVENT_SOURCE: "http-source"
+    ports:
+      - "8080:8080"
+    expose:
+      - "80"
+      - "8080"
+    links:
+      - ${WEBHOOK_EVENT_TYPE}
 
 # Transformations
   # azure-defender-transformation is a service that transforms Azure Defender events into the CSNF CDM format.
